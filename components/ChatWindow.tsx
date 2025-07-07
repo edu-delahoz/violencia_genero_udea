@@ -37,9 +37,9 @@ export default function ChatWindow() {
       } else {
         setMessages(prev => [...prev, { type: 'bot', text: 'Lo siento, hubo un error al procesar tu solicitud.' }])
       }
-    } catch (error) {
-      setMessages(prev => [...prev, { type: 'bot', text: 'Hubo un problema de conexión.' }])
-    }
+    } catch (_error) {
+        setMessages(prev => [...prev, { type: 'bot', text: 'Hubo un problema de conexión.' }])
+      }
   }
 
   return (
