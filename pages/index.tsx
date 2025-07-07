@@ -10,7 +10,7 @@ export default function HomePage() {
             <section className="bg-soft text-text-dark py-20 px-4 text-center select-none">
                 <h1 className="text-5xl font-bold mb-4">Bienvenido a RutaSegura Hub</h1>
                 <p className="text-lg text-text-muted mb-8">
-                    Consejos y herramientas para prevenir y detectar violencia intrafamiliar
+                    Consejos y herramientas para prevenir y detectar violencia genero
                 </p>
             </section>
 
