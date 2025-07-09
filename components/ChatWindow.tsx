@@ -1,15 +1,25 @@
 'use client'
 
 import "../app/globals.css"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import ReactMarkdown from 'react-markdown'
 
 export default function ChatWindow() {
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hola, soy **RutaSegura**. ¿En qué puedo ayudarte hoy?' }
+    { type: 'bot', text: 'Hola, soy RutaSegura. ¿En qué puedo ayudarte hoy?' }
   ])
   const [input, setInput] = useState("")
   const [showOptions, setShowOptions] = useState(true)
+  const [isTyping, setIsTyping] = useState(false)
+  const chatEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, isTyping])
 
   const predefinedOptions = [
     "Quiero denunciar un caso",
@@ -23,6 +33,7 @@ export default function ChatWindow() {
     setMessages(prev => [...prev, { type: 'user', text }])
     setInput("")
     setShowOptions(false)
+    setIsTyping(true)
 
     try {
       const res = await fetch('/api/chat', {
@@ -32,18 +43,21 @@ export default function ChatWindow() {
       })
 
       const data = await res.json()
+      setIsTyping(false)
+
       if (data.reply) {
         setMessages(prev => [...prev, { type: 'bot', text: data.reply }])
       } else {
         setMessages(prev => [...prev, { type: 'bot', text: 'Lo siento, hubo un error al procesar tu solicitud.' }])
       }
-    } catch (_error) {
-        setMessages(prev => [...prev, { type: 'bot', text: 'Hubo un problema de conexión.' }])
-      }
+    } catch {
+      setIsTyping(false)
+      setMessages(prev => [...prev, { type: 'bot', text: 'Hubo un problema de conexión.' }])
+    }
   }
 
   return (
-    <div className="flex justify-center items-center bg-blue-50 py-7 px-4">
+    <div className="flex overflow-y-auto justify-center items-center bg-blue-50 py-7 px-4">
       <div className="w-full max-w-md h-[60vh] bg-white rounded-xl shadow-lg flex flex-col overflow-hidden">
 
         {/* Encabezado */}
@@ -60,15 +74,21 @@ export default function ChatWindow() {
                 msg.type === 'bot'
                   ? 'bg-blue-100 text-gray-800 self-start mr-auto'
                   : 'bg-green-100 text-gray-800 self-end ml-auto'
-              } p-3 rounded-xl max-w-[80%] shadow-sm whitespace-pre-wrap`}
+              } p-3 rounded-xl max-w-[80%] shadow-sm`}
             >
-              {msg.type === 'bot' ? (
-                <ReactMarkdown>{msg.text}</ReactMarkdown>
-              ) : (
-                <p>{msg.text}</p>
-              )}
+              <ReactMarkdown>{msg.text}</ReactMarkdown>
             </div>
           ))}
+
+          {/* Indicador de que el bot está escribiendo */}
+          {isTyping && (
+            <div className="bg-blue-100 text-gray-600 text-sm px-4 py-2 rounded-xl w-fit animate-pulse">
+              RutaSegura está escribiendo...
+            </div>
+          )}
+        
+        <div ref={chatEndRef} />
+
 
           {/* Opciones predefinidas */}
           {showOptions && (
@@ -108,6 +128,7 @@ export default function ChatWindow() {
             Enviar
           </button>
         </form>
+        
       </div>
     </div>
   )

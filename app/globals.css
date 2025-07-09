@@ -5,6 +5,8 @@
 
 /* === ESTILOS BASE PERSONALIZADOS === */
 
+
+
 body {
   @apply bg-blue-50 text-gray-800 font-sans antialiased;
 }

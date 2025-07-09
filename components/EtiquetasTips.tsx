@@ -25,7 +25,7 @@ export default function EtiquetasTips() {
     return (
         <section className="bg-blue-50 py-16 px-4">
         <h2 className="text-3xl font-semibold text-center text-gray-800 mb-10">
-          Tips para prevenir violencia intrafamiliar
+          Tips para prevenir violencia genero
         </h2>
         <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tips.map((tip, idx) => (

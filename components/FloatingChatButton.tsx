@@ -1,9 +1,10 @@
 'use client'
 
 import "../app/globals.css"
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
+
 
 export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -12,9 +13,19 @@ export default function FloatingChat() {
   ])
   const [input, setInput] = useState("")
   const [showOptions, setShowOptions] = useState(true)
+  const [isTyping, setIsTyping] = useState(false)
+  const chatEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const pathname = usePathname()
   if (pathname === '/chat') return null
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, isTyping])
 
   const predefinedOptions = [
     "Quiero denunciar un caso",
@@ -27,6 +38,7 @@ export default function FloatingChat() {
     setMessages(prev => [...prev, { type: 'user', text }])
     setInput("")
     setShowOptions(false)
+    setIsTyping(true)
 
     try {
       const res = await fetch('/api/chat', {
@@ -36,6 +48,8 @@ export default function FloatingChat() {
       })
 
       const data = await res.json()
+      setIsTyping(false)
+
       if (data.reply) {
         setMessages(prev => [...prev, { type: 'bot', text: data.reply }])
       } else {
@@ -102,6 +116,14 @@ export default function FloatingChat() {
                 )}
               </div>
             ))}
+            {/* Indicador de que el bot está escribiendo */}
+          {isTyping && (
+            <div className="bg-blue-100 text-gray-600 text-sm px-4 py-2 rounded-xl w-fit animate-pulse">
+              RutaSegura está escribiendo...
+            </div>
+          )}
+          {/* Auto scroll target */}
+          <div ref={chatEndRef} />
 
             {showOptions && (
               <div className="flex flex-wrap gap-2 mt-2">
@@ -117,7 +139,9 @@ export default function FloatingChat() {
               </div>
             )}
           </div>
+          <div ref={chatEndRef} />
 
+                  
           <form
             className="flex items-center border-t"
             onSubmit={(e) => {
